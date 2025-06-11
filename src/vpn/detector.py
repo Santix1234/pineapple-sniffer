@@ -48,6 +48,8 @@ class VPNDetector:
             # Check network interface for VPN
             result = subprocess.run(['networksetup', '-listnetworkserviceorder'], 
                                     capture_output=True, text=True, timeout=5)
+            
+            # More robust VPN detection
             vpn_interfaces = re.findall(r'VPN|L2TP|PPTP', result.stdout)
             
             if vpn_interfaces:
@@ -56,6 +58,9 @@ class VPNDetector:
                     'type': vpn_interfaces[0],
                     'platform': 'macOS'
                 }
+            return {'status': 'not_connected'}
+        except subprocess.CalledProcessError:
+            # If command fails, assume no VPN
             return {'status': 'not_connected'}
         except Exception as e:
             return {
@@ -86,6 +91,9 @@ class VPNDetector:
                         'platform': 'Linux'
                     }
             
+            return {'status': 'not_connected'}
+        except subprocess.CalledProcessError:
+            # If command fails, assume no VPN
             return {'status': 'not_connected'}
         except Exception as e:
             return {
