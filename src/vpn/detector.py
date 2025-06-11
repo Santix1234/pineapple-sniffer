@@ -49,20 +49,26 @@ class VPNDetector:
             result = subprocess.run(['networksetup', '-listnetworkserviceorder'], 
                                     capture_output=True, text=True, timeout=5)
             
-            # Explicitly check for VPN keywords
-            vpn_keywords = ['VPN', 'L2TP', 'PPTP', 'IPSec']
-            for keyword in vpn_keywords:
-                if re.search(r'\b' + re.escape(keyword) + r'\b', result.stdout, re.IGNORECASE):
+            # Strict keyword matching for VPN
+            keywords = [r'\bVPN\b', r'\bL2TP\b', r'\bPPTP\b', r'\bIPSec\b']
+            for keyword in keywords:
+                if re.search(keyword, result.stdout, re.IGNORECASE):
                     return {
                         'status': 'connected',
-                        'type': keyword,
+                        'type': re.search(keyword, result.stdout, re.IGNORECASE).group(0),
                         'platform': 'macOS'
                     }
             
-            return {'status': 'not_connected'}
+            return {
+                'status': 'not_connected',
+                'platform': 'macOS'
+            }
         except subprocess.CalledProcessError:
             # If command fails, assume no VPN
-            return {'status': 'not_connected'}
+            return {
+                'status': 'not_connected',
+                'platform': 'macOS'
+            }
         except Exception as e:
             return {
                 'status': 'detection_error', 
@@ -92,10 +98,16 @@ class VPNDetector:
                         'platform': 'Linux'
                     }
             
-            return {'status': 'not_connected'}
+            return {
+                'status': 'not_connected',
+                'platform': 'Linux'
+            }
         except subprocess.CalledProcessError:
             # If command fails, assume no VPN
-            return {'status': 'not_connected'}
+            return {
+                'status': 'not_connected',
+                'platform': 'Linux'
+            }
         except Exception as e:
             return {
                 'status': 'detection_error', 
