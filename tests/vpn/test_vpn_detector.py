@@ -23,11 +23,12 @@ class TestVPNDetector:
         """
         Test VPN detection on macOS when no VPN is connected.
         """
-        mock_run.return_value.stdout = "No network services with VPN"
+        mock_run.return_value.stdout = "Network Services: Ethernet, Wi-Fi"
         
         result = VPNDetector.detect_vpn_connection()
         
         assert result['status'] == 'not_connected'
+        assert result['platform'] == 'macOS'
     
     @patch('platform.system', return_value='Linux')
     @patch('subprocess.run')
@@ -49,11 +50,12 @@ class TestVPNDetector:
         """
         Test VPN detection on Linux when no VPN is connected.
         """
-        mock_run.return_value.stdout = "No special interfaces"
+        mock_run.return_value.stdout = "eth0: flags=..."
         
         result = VPNDetector.detect_vpn_connection()
         
         assert result['status'] == 'not_connected'
+        assert result['platform'] == 'Linux'
     
     @patch('platform.system', return_value='Windows')
     def test_unsupported_os(self, mock_platform):
