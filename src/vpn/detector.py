@@ -49,15 +49,16 @@ class VPNDetector:
             result = subprocess.run(['networksetup', '-listnetworkserviceorder'], 
                                     capture_output=True, text=True, timeout=5)
             
-            # More robust VPN detection
-            vpn_interfaces = re.findall(r'VPN|L2TP|PPTP', result.stdout, re.IGNORECASE)
+            # Explicitly check for VPN keywords
+            vpn_keywords = ['VPN', 'L2TP', 'PPTP', 'IPSec']
+            for keyword in vpn_keywords:
+                if re.search(r'\b' + re.escape(keyword) + r'\b', result.stdout, re.IGNORECASE):
+                    return {
+                        'status': 'connected',
+                        'type': keyword,
+                        'platform': 'macOS'
+                    }
             
-            if vpn_interfaces:
-                return {
-                    'status': 'connected',
-                    'type': vpn_interfaces[0],
-                    'platform': 'macOS'
-                }
             return {'status': 'not_connected'}
         except subprocess.CalledProcessError:
             # If command fails, assume no VPN
