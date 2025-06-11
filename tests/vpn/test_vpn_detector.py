@@ -23,7 +23,7 @@ class TestVPNDetector:
         """
         Test VPN detection on macOS when no VPN is connected.
         """
-        mock_run.return_value.stdout = "No VPN interfaces"
+        mock_run.return_value.stdout = "No network services with VPN"
         
         result = VPNDetector.detect_vpn_connection()
         
