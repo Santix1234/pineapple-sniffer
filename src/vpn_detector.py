@@ -33,7 +33,7 @@ class VPNDetector:
                 raise RuntimeError(f"VPN detection not supported on {system}")
         except Exception as e:
             # Log the error or handle it as needed
-            raise RuntimeError(f"VPN detection failed: {str(e)}")
+            return False
     
     @staticmethod
     def _check_vpn_macos() -> bool:
@@ -51,8 +51,8 @@ class VPNDetector:
                                     timeout=5)
             
             # Look for active VPN connections in the output
-            return any(re.search(r'(Connected|Connecting)', result.stdout, re.IGNORECASE))
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            return bool(re.search(r'(Connected|Connecting)', result.stdout, re.IGNORECASE))
+        except Exception:
             return False
     
     @staticmethod
@@ -78,7 +78,7 @@ class VPNDetector:
                 interface in result.stdout.lower() and 'state up' in result.stdout.lower()
                 for interface in vpn_interfaces
             )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        except Exception:
             return False
 
 def detect_vpn() -> bool:
