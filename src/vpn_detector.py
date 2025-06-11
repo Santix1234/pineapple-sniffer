@@ -2,6 +2,7 @@ import subprocess
 import re
 import platform
 import typing
+import logging
 
 class VPNDetector:
     """
@@ -32,7 +33,7 @@ class VPNDetector:
             else:
                 raise RuntimeError(f"VPN detection not supported on {system}")
         except Exception as e:
-            # Log the error or handle it as needed
+            logging.warning(f"VPN detection failed: {e}")
             return False
     
     @staticmethod
@@ -73,9 +74,11 @@ class VPNDetector:
                                     text=True, 
                                     timeout=5)
             
-            # Check if any known VPN interface is present and up
+            # More explicit search for VPN interfaces
             return any(
-                interface in result.stdout.lower() and 'state up' in result.stdout.lower()
+                (interface in result.stdout.lower() and 
+                 ('state up' in result.stdout.lower() or 
+                  'mtu' in result.stdout.lower()))
                 for interface in vpn_interfaces
             )
         except Exception:
