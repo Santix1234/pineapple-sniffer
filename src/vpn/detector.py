@@ -50,7 +50,7 @@ class VPNDetector:
                                     capture_output=True, text=True, timeout=5)
             
             # More robust VPN detection
-            vpn_interfaces = re.findall(r'VPN|L2TP|PPTP', result.stdout)
+            vpn_interfaces = re.findall(r'VPN|L2TP|PPTP', result.stdout, re.IGNORECASE)
             
             if vpn_interfaces:
                 return {
